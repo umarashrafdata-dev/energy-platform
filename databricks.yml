@@ -1,0 +1,31 @@
+bundle:
+  name: energy-platform
+
+artifacts:
+  default:
+    type: whl
+    build: uv build --wheel
+
+resources:
+  jobs:
+    hello_job:
+      name: "[${bundle.target}] hello-job smoke test"
+      tasks:
+        - task_key: hello
+          python_wheel_task:
+            package_name: energy_platform
+            entry_point: hello-job
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            client: "2"
+            dependencies:
+              - ./dist/*.whl
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405610313894595.15.azuredatabricks.net

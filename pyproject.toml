@@ -1,6 +1,6 @@
 [project]
 name = "energy-platform"
-version = "0.2.0"
+version = "0.3.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -17,3 +17,6 @@ dev = [
     "pyspark>=4.2.0",
     "pytest>=9.1.1",
 ]
+
+[project.scripts]
+hello-job = "energy_platform.entrypoints:hello_job"
