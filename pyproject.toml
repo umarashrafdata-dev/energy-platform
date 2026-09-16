@@ -14,5 +14,6 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "pyspark>=4.2.0",
     "pytest>=9.1.1",
 ]
