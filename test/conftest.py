@@ -18,5 +18,7 @@ def spark():
     spark = SparkSession.builder \
         .appName("energy-platform-tests") \
         .master("local[2]") \
+        .config("spark.driver.extraJavaOptions", "-Duser.timezone=UTC") \
+        .config("spark.sql.session.timeZone", "UTC") \
         .getOrCreate()
     return spark
