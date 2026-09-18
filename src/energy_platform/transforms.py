@@ -1,6 +1,35 @@
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
+
+from pyspark.sql.types import (
+    BooleanType, DoubleType, IntegerType, StringType, StructField, StructType,
+)
+
+RAW_SCHEMA = StructType([
+    StructField("settlementDate", StringType()),
+    StructField("settlementPeriod", IntegerType()),
+    StructField("startTime", StringType()),
+    StructField("createdDateTime", StringType()),
+    StructField("systemSellPrice", DoubleType()),
+    StructField("systemBuyPrice", DoubleType()),
+    StructField("priceDerivationCode", StringType()),
+    StructField("bsadDefaulted", BooleanType()),
+    StructField("netImbalanceVolume", DoubleType()),
+    StructField("sellPriceAdjustment", DoubleType()),
+    StructField("buyPriceAdjustment", DoubleType()),
+    StructField("replacementPrice", DoubleType()),
+    StructField("replacementPriceReferenceVolume", DoubleType()),
+    StructField("totalAcceptedOfferVolume", DoubleType()),
+    StructField("totalAcceptedBidVolume", DoubleType()),
+    StructField("totalAdjustmentSellVolume", DoubleType()),
+    StructField("totalAdjustmentBuyVolume", DoubleType()),
+    StructField("totalSystemTaggedAcceptedOfferVolume", DoubleType()),
+    StructField("totalSystemTaggedAcceptedBidVolume", DoubleType()),
+    StructField("totalSystemTaggedAdjustmentSellVolume", DoubleType()),
+    StructField("totalSystemTaggedAdjustmentBuyVolume", DoubleType()),
+])
+
 def standardise_prices(raw_prices: DataFrame) -> DataFrame:
     """
     Standardises the prices in the raw_prices DataFrame.

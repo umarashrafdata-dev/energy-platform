@@ -1,34 +1,11 @@
 from datetime import date, datetime, timezone
 
-from energy_platform.transforms import standardise_prices
+from energy_platform.transforms import standardise_prices, RAW_SCHEMA
 
 from pyspark.sql.types import (
     BooleanType, DoubleType, IntegerType, StringType, StructField, StructType,
 )
 
-RAW_SCHEMA = StructType([
-    StructField("settlementDate", StringType()),
-    StructField("settlementPeriod", IntegerType()),
-    StructField("startTime", StringType()),
-    StructField("createdDateTime", StringType()),
-    StructField("systemSellPrice", DoubleType()),
-    StructField("systemBuyPrice", DoubleType()),
-    StructField("priceDerivationCode", StringType()),
-    StructField("bsadDefaulted", BooleanType()),
-    StructField("netImbalanceVolume", DoubleType()),
-    StructField("sellPriceAdjustment", DoubleType()),
-    StructField("buyPriceAdjustment", DoubleType()),
-    StructField("replacementPrice", DoubleType()),
-    StructField("replacementPriceReferenceVolume", DoubleType()),
-    StructField("totalAcceptedOfferVolume", DoubleType()),
-    StructField("totalAcceptedBidVolume", DoubleType()),
-    StructField("totalAdjustmentSellVolume", DoubleType()),
-    StructField("totalAdjustmentBuyVolume", DoubleType()),
-    StructField("totalSystemTaggedAcceptedOfferVolume", DoubleType()),
-    StructField("totalSystemTaggedAcceptedBidVolume", DoubleType()),
-    StructField("totalSystemTaggedAdjustmentSellVolume", DoubleType()),
-    StructField("totalSystemTaggedAdjustmentBuyVolume", DoubleType()),
-])
 
 def make_raw_row(**overrides) -> dict:
     """One contract-shaped raw row; override only what the test cares about."""
