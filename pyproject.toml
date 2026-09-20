@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "databricks-labs-dqx>=0.16.0",
     "requests>=2.34.2",
     "tenacity>=9.1.4",
     "tzdata>=2026.4",
@@ -16,6 +17,8 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "pandas<3.0.0",
+    "pyarrow>=18.0.0",
     "pyspark>=4.2.0",
     "pytest>=9.1.1",
 ]
