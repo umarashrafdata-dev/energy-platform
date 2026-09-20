@@ -22,6 +22,20 @@ resources:
             client: "2"
             dependencies:
               - ./dist/*.whl
+    ingest_prices:
+      name: "[${bundle.target}] ingest system prices"
+      tasks:
+        - task_key: ingest
+          python_wheel_task:
+            package_name: energy_platform
+            entry_point: ingest-prices
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            client: "2"
+            dependencies:
+              - ./dist/*.whl
 
 targets:
   dev:

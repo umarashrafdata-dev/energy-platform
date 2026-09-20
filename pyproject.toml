@@ -22,3 +22,4 @@ dev = [
 
 [project.scripts]
 hello-job = "energy_platform.entrypoints:hello_job"
+ingest-prices = "energy_platform.entrypoints:ingest_prices"
