@@ -2,6 +2,8 @@ import logging
 from datetime import date
 
 from energy_platform.logging_setup import configure_logging
+from energy_platform.quality import split_on_quality, enforce_batch_threshold
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +37,19 @@ def ingest_prices() -> None:
     logger.info("Fetch plan: %d date(s)", len(plan))
 
     for d in plan:
-        rows = fetch_system_prices(d)
-        if not rows:
-            logger.info("No data for %s; stopping advance here", d)
-            break
-        df = standardise_prices(bronze.raw_rows_to_df(spark, rows))
-        bronze.append_prices(df)
-        last = max(rows, key=lambda r: r["settlementPeriod"])
-        bronze.write_watermark(spark, Watermark(d, last["settlementPeriod"]))
+            rows = fetch_system_prices(d)
+            if not rows:
+                logger.info("No data for %s; stopping advance here", d)
+                break
+            df = standardise_prices(bronze.raw_rows_to_df(spark, rows))
+
+            good, quarantined = split_on_quality(df)
+            good_count = bronze.append_prices(good)
+            quarantine_count = bronze.append_quarantine(quarantined)
+            logger.info(
+                "%s: %d good, %d quarantined", d, good_count, quarantine_count
+            )
+            enforce_batch_threshold(good_count, quarantine_count)
+
+            last = max(rows, key=lambda r: r["settlementPeriod"])
+            bronze.write_watermark(spark, Watermark(d, last["settlementPeriod"]))

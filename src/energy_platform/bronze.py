@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 PRICES_TABLE = "energy.bronze.system_prices"
 WATERMARK_TABLE = "energy.bronze._ingest_watermark"
+QUARANTINE_TABLE = "energy.bronze.system_prices_quarantine"
 
 
 def append_prices(df: DataFrame) -> int:
@@ -51,3 +52,8 @@ def raw_rows_to_df(spark: SparkSession, rows: list[dict]) -> DataFrame:
     """Cross the Python->Spark boundary: raw API dicts to a typed DataFrame."""
     from energy_platform.transforms import RAW_SCHEMA
     return spark.createDataFrame(rows, schema=RAW_SCHEMA)
+
+def append_quarantine(df) -> int:
+    count = df.count()
+    df.write.format("delta").mode("append").saveAsTable(QUARANTINE_TABLE)
+    return count
