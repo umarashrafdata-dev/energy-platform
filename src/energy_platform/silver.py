@@ -19,7 +19,7 @@ def overwrite_silver(df: DataFrame)-> int:
     logger.info("Silver rebuilt: %d rows in %s", count, SILVER_PRICES_TABLE)
     return count
 
-def assert_unique_keys(spark: sparkSession) -> None:
+def assert_unique_keys(spark: SparkSession) -> None:
     """Assert that the silver table has unique keys (settlement_date, settlement_period)."""
     df = spark.table(SILVER_PRICES_TABLE)
     duplicates = (
