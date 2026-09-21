@@ -53,3 +53,18 @@ def ingest_prices() -> None:
 
             last = max(rows, key=lambda r: r["settlementPeriod"])
             bronze.write_watermark(spark, Watermark(d, last["settlementPeriod"]))
+
+def build_silver() -> None:
+    """Rebuild silver from bronze: dedupe to latest version per key."""
+    configure_logging()
+    from pyspark.sql import SparkSession
+
+    from energy_platform import silver
+    from energy_platform.transforms import dedupe_latest
+
+    spark = SparkSession.builder.getOrCreate()
+    spark.conf.set("spark.sql.session.timeZone", "UTC")
+
+    deduped = dedupe_latest(silver.read_bronze(spark))
+    silver.overwrite_silver(deduped)
+    silver.assert_unique_keys(spark)

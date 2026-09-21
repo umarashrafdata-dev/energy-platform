@@ -23,37 +23,37 @@ def _standardised(spark, rows: list[dict]):
 
 # --- Row verdicts -----------------------------------------------------------
 
-def test_clean_rows_all_pass(spark):
-    good, quarantined = split_on_quality(_standardised(spark, [make_raw_row()]))
+def test_clean_rows_all_pass(spark, ws):
+    good, quarantined = split_on_quality(_standardised(spark, [make_raw_row()]), ws=ws)
     assert good.count() == 1
     assert quarantined.count() == 0
 
 
-def test_out_of_range_period_is_quarantined(spark):
+def test_out_of_range_period_is_quarantined(spark, ws):
     df = _standardised(spark, [make_raw_row(), make_raw_row(settlementPeriod=99)])
-    good, quarantined = split_on_quality(df)
+    good, quarantined = split_on_quality(df, ws=ws)
     assert good.count() == 1
     assert quarantined.count() == 1
     assert quarantined.collect()[0].settlement_period == 99
 
 
-def test_null_price_is_quarantined(spark):
+def test_null_price_is_quarantined(spark, ws):
     df = _standardised(spark, [make_raw_row(systemSellPrice=None)])
-    good, quarantined = split_on_quality(df)
+    good, quarantined = split_on_quality(df, ws=ws)
     assert good.count() == 0
     assert quarantined.count() == 1
 
 
-def test_diverged_prices_warn_but_pass(spark):
+def test_diverged_prices_warn_but_pass(spark, ws):
     df = _standardised(spark, [make_raw_row(systemBuyPrice=99.99)])
-    good, quarantined = split_on_quality(df)
+    good, quarantined = split_on_quality(df, ws=ws)
     assert good.count() == 1          # warn tier: flagged, never diverted
     assert quarantined.count() == 0
 
 
-def test_quarantined_row_names_its_rule(spark):
+def test_quarantined_row_names_its_rule(spark,ws):
     df = _standardised(spark, [make_raw_row(settlementPeriod=99)])
-    _, quarantined = split_on_quality(df)
+    _, quarantined = split_on_quality(df, ws=ws)
     annotations = str(quarantined.collect()[0].asDict())
     assert "settlement_period_in_range" in annotations
 
