@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from energy_platform.transforms import standardise_prices, RAW_SCHEMA
+from energy_platform.transforms import standardise_prices, RAW_SCHEMA, dedupe_latest
 
 from pyspark.sql.types import (
     BooleanType, DoubleType, IntegerType, StringType, StructField, StructType,
@@ -59,3 +59,41 @@ def test_normal_nulls_flow_through(spark):
     raw = spark.createDataFrame([make_raw_row()], schema=RAW_SCHEMA)
     row = standardise_prices(raw).collect()[0]
     assert row.replacement_price is None  # contract: null is NORMAL here
+
+
+def test_dedupe_latest_latest_wins(spark):
+    raw = spark.createDataFrame([
+        make_raw_row(createdDateTime="2026-09-15T04:45:14Z", systemSellPrice=45.5),
+        make_raw_row(createdDateTime="2026-09-15T05:45:14Z", systemSellPrice=46.0),
+    ], schema=RAW_SCHEMA)
+    out = dedupe_latest(standardise_prices(raw))
+    assert out.count() == 1
+    assert float(out.collect()[0].system_sell_price) == 46.0  # latest wins
+
+def test_dedupe_latest_different_periods(spark):
+    raw = spark.createDataFrame([
+        make_raw_row(settlementPeriod=10, createdDateTime="2026-09-15T05:45:14Z", systemSellPrice=45.5),
+        make_raw_row(settlementPeriod=11, createdDateTime="2026-09-15T05:45:14Z", systemSellPrice=46.0),
+    ], schema=RAW_SCHEMA)
+    out = dedupe_latest(standardise_prices(raw))
+    assert out.count() == 2  # different periods, both survive
+
+def test_dedupe_leaves_clean(spark):
+    raw = spark.createDataFrame([
+        make_raw_row(settlementDate = "2026-09-14", settlementPeriod=10, createdDateTime="2026-09-15T05:45:14Z", systemSellPrice=45.5),
+        make_raw_row(settlementDate = "2026-09-15",settlementPeriod=9, createdDateTime="2026-09-15T04:45:14Z", systemSellPrice=46.0),
+    ], schema=RAW_SCHEMA)
+    out = dedupe_latest(standardise_prices(raw))
+    assert out.count() == 2
+
+def test_dedupe_leaves_clean_different_dates(spark):
+    raw = spark.createDataFrame([
+        make_raw_row(settlementDate="2026-09-15", settlementPeriod=10, createdDateTime="2026-09-15T05:45:14Z", systemSellPrice=45.5),
+        make_raw_row(settlementDate="2026-09-16", settlementPeriod=10, createdDateTime="2026-09-15T04:45:14Z", systemSellPrice=46.0),
+    ], schema=RAW_SCHEMA)
+    out = dedupe_latest(standardise_prices(raw))
+    assert out.count() == 2  # different dates, both survive
+
+def test_dedupe_single_row_passes_through(spark):
+    raw = spark.createDataFrame([make_raw_row()], schema=RAW_SCHEMA)
+    assert dedupe_latest(standardise_prices(raw)).count() == 1

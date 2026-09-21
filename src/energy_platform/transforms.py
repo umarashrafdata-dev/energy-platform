@@ -1,5 +1,6 @@
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
+from pyspark.sql.window import Window
 
 
 from pyspark.sql.types import (
@@ -67,3 +68,10 @@ def standardise_prices(raw_prices: DataFrame) -> DataFrame:
         )
         .where(F.col("settlement_date").isNotNull() & F.col("settlement_period").isNotNull())
     )
+
+def dedupe_latest(df: DataFrame) -> DataFrame:
+    """One row per (settlement_date, settlement_period);
+    latest created_datetime_utc wins."""
+    window_spec = Window.partitionBy("settlement_date", "settlement_period").orderBy(F.col("created_datetime_utc").desc())
+    df_with_row_number = df.withColumn("_rn", F.row_number().over(window_spec))
+    return df_with_row_number.filter(F.col("_rn")==1).drop("_rn")
