@@ -1,0 +1,9 @@
+def test_all_import():
+    import energy_platform.bronze
+    import energy_platform.elexon
+    import energy_platform.entrypoints
+    import energy_platform.logging_setup
+    import energy_platform.quality
+    import energy_platform.settlements
+    import energy_platform.transforms
+    import energy_platform.watermark

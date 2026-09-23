@@ -7,7 +7,7 @@ from energy_platform.transforms import dedupe_latest
 )
 def system_prices():
     """Silver table of Elexon system prices, deduped to latest version per key"""
-    return dedupe_latest(spark.read("energy.bronze.system_prices"))
+    return dedupe_latest(spark.table("energy.bronze.system_prices"))
 
 @dlt.table(
     name="silver_duplicates_keys",

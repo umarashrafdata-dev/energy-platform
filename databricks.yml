@@ -36,20 +36,6 @@ resources:
             client: "2"
             dependencies:
               - ./dist/*.whl
-    build_silver:
-      name: "[${bundle.target}] build silver tables"
-      tasks:
-        - task_key: build_silver
-          python_wheel_task:
-            package_name: energy_platform
-            entry_point: build-silver
-          environment_key: default
-      environments:
-        - environment_key: default
-          spec:
-            client: "2"
-            dependencies:
-              - ./dist/*.whl
   pipelines:
     silver_pipeline:
       name: energy-silver
