@@ -50,6 +50,18 @@ resources:
             client: "2"
             dependencies:
               - ./dist/*.whl
+  pipelines:
+    silver_pipeline:
+      name: energy-silver
+      serverless: true
+      catalog: energy
+      schema: silver
+      libraries:
+        - file:
+            path: ./pipelines/silver_pipeline.py
+      environment:
+        dependencies:
+          - ./dist/*.whl
 
 targets:
   dev:

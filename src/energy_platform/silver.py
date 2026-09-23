@@ -1,5 +1,4 @@
 import logging
-from pyspark.shell import spark
 from pyspark.sql import DataFrame, SparkSession
 logger = logging.getLogger(__name__)
 SILVER_PRICES_TABLE = "energy.silver.system_prices"
