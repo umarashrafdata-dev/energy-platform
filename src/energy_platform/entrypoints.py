@@ -59,7 +59,7 @@ def build_silver() -> None:
     configure_logging()
     from pyspark.sql import SparkSession
 
-    from energy_platform import silver
+    from alternatives import silver
     from energy_platform.transforms import dedupe_latest
 
     spark = SparkSession.builder.getOrCreate()
